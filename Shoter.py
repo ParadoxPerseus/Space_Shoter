@@ -9,16 +9,42 @@ pygame.init()
 
 window = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+bg = pygame.image.load('purple.png').convert()
+
+file = ['meteorGrey_big1.png', 'meteorGrey_big2.png', 'meteorGrey_med1.png', 'meteorGrey_med2.png',
+        'meteorGrey_small1.png', 'meteorGrey_small2.png', 'meteorGrey_tiny1.png', 'meteorGrey_tiny2.png',
+        'meteorGrey_big3.png', 'meteorGrey_big4.png']
+images = []
+for i in file:
+    meteor_image = pygame.image.load(i).convert()
+    images.append(meteor_image)
+
 ship = Ship()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(ship)
 bullets = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
 
-for i in range(10):
-    meteor = Meteor()
+
+def create_meteor(images):
+    meteor = Meteor(images)
     all_sprites.add(meteor)
     meteors.add(meteor)
+
+
+for i in range(20):
+    create_meteor(images)
+
+
+def draw_xp_bar():
+    if ship.xp < 0:
+        ship.xp = 0
+    fill = (ship.xp / 100) * XP_BAR_WIDTH
+    outline_rect = pygame.Rect(SCREEN_WIDTH - XP_BAR_WIDTH - 10, 10, XP_BAR_WIDTH, 15)
+    fill_rect = pygame.Rect(SCREEN_WIDTH - XP_BAR_WIDTH - 10, 10, fill, 15)
+    pygame.draw.rect(window, WHITE2, fill_rect)
+    pygame.draw.rect(window, WHITE, outline_rect, 2)
+
 
 pygame.display.set_caption('PYGAME')
 pygame.display.set_icon(pygame.image.load('logo.png'))
@@ -40,21 +66,28 @@ while True:
 
     player_meteor_hit = pygame.sprite.spritecollide(ship, meteors, True, pygame.sprite.collide_circle)
     for hit in player_meteor_hit:
-        ship.xp -= 10
+        if hit.radius >= 40:
+            ship.xp -= 50
+        elif hit.radius < 17.2 and hit.radius >= 17.2:
+            ship.xp -= 25
+        elif hit.radius < 17.2 and hit.radius > 11.2:
+            ship.xp -= 10
+        else:
+            ship.xp -= 5
         if ship.xp <= 0:
             pygame.quit()
             sys.exit()
-        meteor = Meteor()
-        meteors.add(meteor)
-        all_sprites.add(meteor)
+        create_meteor(images)
     bullets_hit_meteors = pygame.sprite.groupcollide(bullets, meteors, True, True,
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
-        meteor = Meteor()
-        meteors.add(meteor)
-        all_sprites.add(meteor)
-    window.fill(GREEN)
+        create_meteor(images)
+    # window.fill(BLACK)
+    window.blit(bg, (0, 0))
     all_sprites.draw(window)
     all_sprites.update()
     meteors.update()
+    draw_xp_bar()
+    if ship.xp < 20:
+        WHITE2 = RED
     pygame.display.update()
