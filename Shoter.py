@@ -1,6 +1,8 @@
+import random
 import pygame
 from meteor import Meteor
 from ship import Ship
+from bonus import Bonus
 from const import *
 from bullet import Bullet
 import sys
@@ -46,12 +48,19 @@ def draw_xp_bar():
     pygame.draw.rect(window, WHITE, outline_rect, 2)
 
 
+score = 0
+
+text = pygame.font.Font('DS-DIGIT.TTF', 32)
+
+
 pygame.display.set_caption('PYGAME')
 pygame.display.set_icon(pygame.image.load('logo.png'))
 clock = pygame.time.Clock()
 lives = 5
 
 while True:
+    text_score = str(score)
+    text_score_render = text.render('SCORE:' + text_score, True, YELLOW)
     text_lives = str(lives)
     pygame.display.update()
     clock.tick(FPS)
@@ -78,15 +87,30 @@ while True:
             pygame.quit()
             sys.exit()
         create_meteor(images)
-    bullets_hit_meteors = pygame.sprite.groupcollide(bullets, meteors, True, True,
+    bullets_hit_meteors = pygame.sprite.groupcollide(meteors, bullets, True, True,
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
+        if hit.radius >= 40:
+            score += 1
+        elif hit.radius < 17.2 and hit.radius >= 17.2:
+            score += 2
+        elif hit.radius < 17.2 and hit.radius > 11.2:
+            score += 3
+        elif hit.radius < 8.6 and hit.radius > 5.2:
+            score += 5
+        a = random.randint(0, 10)
+        bonuses = pygame.sprite.Group()
+        if a == 10:
+            bonus = Bonus()
+            bonuses.add(bonus)
+            all_sprites.add(bonus)
     # window.fill(BLACK)
     window.blit(bg, (0, 0))
     all_sprites.draw(window)
     all_sprites.update()
     meteors.update()
+    window.blit(text_score_render, (5, 5))
     draw_xp_bar()
     if ship.xp < 20:
         WHITE2 = RED
