@@ -1,5 +1,6 @@
 import random
 import pygame
+from explosion import Explosion
 from meteor import Meteor
 from ship import Ship
 from bonus import Bonus
@@ -20,6 +21,14 @@ images = []
 for i in file:
     meteor_image = pygame.image.load(i).convert()
     images.append(meteor_image)
+
+explosion_image_list = []
+
+for i in range(9):
+    file_name = 'regularExplosion0' + str(i) + '.png'
+    explosion_image = pygame.image.load(file_name).convert()
+    explosion_image.set_colorkey(BLACK)
+    explosion_image_list.append(explosion_image)
 
 ship = Ship()
 all_sprites = pygame.sprite.Group()
@@ -77,12 +86,20 @@ while True:
     for hit in player_meteor_hit:
         if hit.radius >= 40:
             ship.xp -= 50
+            explosion = Explosion(explosion_image_list, hit.rect.center)
+            all_sprites.add(explosion)
         elif hit.radius < 17.2 and hit.radius >= 17.2:
             ship.xp -= 25
+            explosion = Explosion(explosion_image_list, hit.rect.center)
+            all_sprites.add(explosion)
         elif hit.radius < 17.2 and hit.radius > 11.2:
             ship.xp -= 10
+            explosion = Explosion(explosion_image_list, hit.rect.center)
+            all_sprites.add(explosion)
         else:
             ship.xp -= 5
+            explosion = Explosion(explosion_image_list, hit.rect.center)
+            all_sprites.add(explosion)
         if ship.xp <= 0:
             pygame.quit()
             sys.exit()
@@ -91,13 +108,15 @@ while True:
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
+        explosion = Explosion(explosion_image_list, hit.rect.center)
+        all_sprites.add(explosion)
         if hit.radius >= 40:
             score += 1
         elif hit.radius < 17.2 and hit.radius >= 17.2:
             score += 2
         elif hit.radius < 17.2 and hit.radius > 11.2:
             score += 3
-        elif hit.radius < 8.6 and hit.radius > 5.2:
+        elif hit.radius < 8.6 and hit.radius > 4.3:
             score += 5
         a = random.randint(0, 10)
         bonuses = pygame.sprite.Group()
