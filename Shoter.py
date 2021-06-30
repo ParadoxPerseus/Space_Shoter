@@ -1,3 +1,4 @@
+import time
 import random
 import pygame
 from explosion import Explosion
@@ -22,17 +23,27 @@ for i in file:
     meteor_image = pygame.image.load(i).convert()
     images.append(meteor_image)
 
+explosion_music = pygame.mixer.Sound('3BYK B3BPbIBA2.mp3')
+
+music = pygame.mixer.Sound('2-jungle-hangar-stages-1-7.mp3')
+
 explosion_image_dict = {}
 explosion_image_dict['small'] = []
 explosion_image_dict['large'] = []
+explosion_image_dict['tiny'] = []
+explosion_image_dict['medium'] = []
 for i in range(9):
     file_name = 'regularExplosion0' + str(i) + '.png'
     explosion_image = pygame.image.load(file_name).convert()
     explosion_image.set_colorkey(BLACK)
-    large_image = pygame.transform.scale(explosion_image, (80, 80))
+    large_image = pygame.transform.scale(explosion_image, (40, 40))
     explosion_image_dict['large'].append(large_image)
     small_image = pygame.transform.scale(explosion_image, (20, 20))
     explosion_image_dict['small'].append(small_image)
+    medium_image = pygame.transform.scale(explosion_image, (80, 80))
+    explosion_image_dict['medium'].append(medium_image)
+    tiny_image = pygame.transform.scale(explosion_image, (10, 10))
+    explosion_image_dict['tiny'].append(tiny_image)
 
 
 ship = Ship()
@@ -71,7 +82,7 @@ pygame.display.set_caption('PYGAME')
 pygame.display.set_icon(pygame.image.load('logo.png'))
 clock = pygame.time.Clock()
 lives = 5
-
+music.play()
 while True:
     text_score = str(score)
     text_score_render = text.render('SCORE:' + text_score, True, YELLOW)
@@ -83,6 +94,8 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            shot_music = pygame.mixer.Sound('выстрел.mp3')
+            shot_music.play()
             bullet = Bullet(ship.rect.centerx, ship.rect.top)
             bullets.add(bullet)
             all_sprites.add(bullet)
@@ -113,11 +126,18 @@ while True:
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
+        explosion_music.play()
         if hit.radius > 35:
-            explosion = Explosion(explosion_image_dict, hit.rect.center, 'large')
+            explosion = Explosion(explosion_image_dict, hit.rect.center, 'medium')
             all_sprites.add(explosion)
         if hit.radius < 17 and hit.radius >= 11:
+            explosion = Explosion(explosion_image_dict, hit.rect.center, 'tiny')
+            all_sprites.add(explosion)
+        if hit.radius > 11:
             explosion = Explosion(explosion_image_dict, hit.rect.center, 'small')
+            all_sprites.add(explosion)
+        if hit.radius < 75 and hit.radius >= 79:
+            explosion = Explosion(explosion_image_dict, hit.rect.center, 'large')
             all_sprites.add(explosion)
         if hit.radius >= 40:
             score += 1
