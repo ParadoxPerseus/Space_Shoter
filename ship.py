@@ -12,7 +12,8 @@ class Ship(pygame.sprite.Sprite):
         self.rect.bottom = SCREEN_HEIGHT - 20
         self.speedx = 0
         self.xp = 100
-
+        self.bonus_gun = False
+        self.bonus_gun_timer = pygame.time.get_ticks()
 
     def update(self):
         self.speedx = 0
@@ -26,3 +27,7 @@ class Ship(pygame.sprite.Sprite):
             self.rect.left = 0
         if self.rect.right > SCREEN_WIDTH:
             self.rect.right = SCREEN_WIDTH
+        now = pygame.time.get_ticks()
+        if self.bonus_gun and now - self.bonus_gun_timer > 10000:
+            self.bonus_gun_timer = now
+            self.bonus_gun = False

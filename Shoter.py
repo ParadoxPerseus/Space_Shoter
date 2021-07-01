@@ -82,9 +82,20 @@ while True:
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             shot_music = pygame.mixer.Sound('выстрел.mp3')
             shot_music.play()
-            bullet = Bullet(ship.rect.centerx, ship.rect.top)
-            bullets.add(bullet)
-            all_sprites.add(bullet)
+            if ship.bonus_gun:
+                bullet = Bullet(ship.rect.centerx, ship.rect.top)
+                bullets.add(bullet)
+                all_sprites.add(bullet)
+                bullet2 = Bullet(ship.rect.left, ship.rect.centery)
+                bullets.add(bullet2)
+                all_sprites.add(bullet2)
+                bullet1 = Bullet(ship.rect.right, ship.rect.centery)
+                bullets.add(bullet1)
+                all_sprites.add(bullet1)
+            else:
+                bullet = Bullet(ship.rect.centerx, ship.rect.top)
+                bullets.add(bullet)
+                all_sprites.add(bullet)
     player_meteor_hit = pygame.sprite.spritecollide(ship, meteors, True, pygame.sprite.collide_circle)
     for hit in player_meteor_hit:
         if hit.radius >= 40:
@@ -121,19 +132,22 @@ while True:
             bonuses.add(bonus)
             all_sprites.add(bonus)
         else:
-            explosion_music.play()
             if hit.radius > 35:
                 explosion = Explosion(explosion_image_dict, hit.rect.center, 'medium')
                 all_sprites.add(explosion)
+                explosion_music.play()
             if hit.radius < 17 and hit.radius >= 1:
                 explosion = Explosion(explosion_image_dict, hit.rect.center, 'tiny')
                 all_sprites.add(explosion)
+                explosion_music.play()
             if hit.radius > 11:
                 explosion = Explosion(explosion_image_dict, hit.rect.center, 'small')
                 all_sprites.add(explosion)
+                explosion_music.play()
             if hit.radius < 75 and hit.radius >= 79:
                 explosion = Explosion(explosion_image_dict, hit.rect.center, 'large')
                 all_sprites.add(explosion)
+                explosion_music.play()
         if hit.radius >= 40:
             score += 1
         elif hit.radius < 17.2 and hit.radius >= 17.2:
@@ -142,6 +156,19 @@ while True:
             score += 3
         elif hit.radius < 8.6 and hit.radius > 4.3:
             score += 5
+    player_hit_bonus = pygame.sprite.spritecollide(ship, bonuses, True, pygame.sprite.collide_circle)
+    for hit in player_hit_bonus:
+        if hit.type == 'hp':
+            ship.xp += random.randint(20, 50)
+            if ship.xp > 100:
+                ship.xp = 100
+        if hit.type == 'gun':
+            ship.bonus_gun = True
+        if hit.type == 'shield':
+            pass
+        if hit.type == 'star':
+            pass
+
     # window.fill(BLACK)
     window.blit(bg, (0, 0))
     all_sprites.draw(window)
