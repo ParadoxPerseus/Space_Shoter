@@ -1,16 +1,18 @@
+from const import *
 import random
 import pygame
-from const import *
 
 class Bonus(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, bonus_image_dict, meteor_center):
         pygame.sprite.Sprite.__init__(self)
-        self.x = random.randint(20, SCREEN_WIDTH - 20)
-        self.y = - 30
-        self.images = ['pill_green.png', 'bolt_gold.png', 'shield_bronze.png']
-        self.image = pygame.image.load(random.choice(self.images))
+        self.type = random.choice(['hp', 'gun', 'shield', 'star'])
+        self.image = bonus_image_dict[self.type]
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
+        self.rect.center = meteor_center
+        self.speedy = 2
 
     def update(self):
-        for i in range(30):
-            self.rect.y += 0.7
+        self.rect.y += self.speedy
+        if self.rect.top > SCREEN_HEIGHT:
+            self.kill()
