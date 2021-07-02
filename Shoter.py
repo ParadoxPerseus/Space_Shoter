@@ -52,8 +52,30 @@ def create_meteor(images):
     meteor = Meteor(images)
     all_sprites.add(meteor)
     meteors.add(meteor)
+def AutoFire(boo=True):
+    if boo:
+        bullet = Bullet(ship.rect.centerx, ship.rect.top)
+        bullets.add(bullet)
+        all_sprites.add(bullet)
+        shot_music = pygame.mixer.Sound('выстрел.mp3')
+        shot_music.play()
+        if ship.bonus_gun:
+            bullet = Bullet(ship.rect.centerx, ship.rect.top)
+            bullets.add(bullet)
+            all_sprites.add(bullet)
+            bullet2 = Bullet(ship.rect.left, ship.rect.centery)
+            bullets.add(bullet2)
+            all_sprites.add(bullet2)
+            bullet1 = Bullet(ship.rect.right, ship.rect.centery)
+            bullets.add(bullet1)
+            all_sprites.add(bullet1)
+            all_sprites.draw(window)
 for i in range(20):
     create_meteor(images)
+tiny_score = 5
+small_score = 3
+medium_score = 2
+large_score = 1
 def draw_xp_bar():
     if ship.xp < 0:
         ship.xp = 0
@@ -127,7 +149,7 @@ while True:
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
-        if random.random() > 0.1:
+        if random.random() > 0.9:
             bonus = Bonus(bonus_image_dict, hit.rect.center)
             bonuses.add(bonus)
             all_sprites.add(bonus)
@@ -149,13 +171,13 @@ while True:
                 all_sprites.add(explosion)
                 explosion_music.play()
         if hit.radius >= 40:
-            score += 1
+            score += large_score
         elif hit.radius < 17.2 and hit.radius >= 17.2:
-            score += 2
+            score += medium_score
         elif hit.radius < 17.2 and hit.radius > 11.2:
-            score += 3
+            score += small_score
         elif hit.radius < 8.6 and hit.radius > 4.3:
-            score += 5
+            score += tiny_score
     player_hit_bonus = pygame.sprite.spritecollide(ship, bonuses, True, pygame.sprite.collide_circle)
     for hit in player_hit_bonus:
         if hit.type == 'hp':
@@ -164,13 +186,28 @@ while True:
                 ship.xp = 100
         if hit.type == 'gun':
             ship.bonus_gun = True
+            ship.bonus_gun_timer = pygame.time.get_ticks()
         if hit.type == 'shield':
             pass
         if hit.type == 'star':
-            pass
-
+            ship.bonus_score = True
+            tiny_score *= 3
+            small_score *= 3
+            medium_score *= 3
+            large_score *= 3
+            ship.bonus_score_timer = pygame.time.get_ticks()
+            if ship.bonus_score_timer > 10000:
+                tiny_score = 5
+                small_score = 3
+                medium_score = 2
+                large_score = 1
     # window.fill(BLACK)
     window.blit(bg, (0, 0))
+    key = pygame.key.get_pressed()
+    if key[pygame.K_SPACE]:
+        AutoFire(True)
+    if key[pygame.K_SPACE]:
+        AutoFire(False)
     all_sprites.draw(window)
     all_sprites.update()
     meteors.update()

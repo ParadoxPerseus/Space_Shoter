@@ -13,6 +13,8 @@ class Ship(pygame.sprite.Sprite):
         self.speedx = 0
         self.xp = 100
         self.bonus_gun = False
+        self.bonus_score = False
+        self.bonus_score_timer = pygame.time.get_ticks()
         self.bonus_gun_timer = pygame.time.get_ticks()
 
     def update(self):
@@ -31,3 +33,7 @@ class Ship(pygame.sprite.Sprite):
         if self.bonus_gun and now - self.bonus_gun_timer > 10000:
             self.bonus_gun_timer = now
             self.bonus_gun = False
+        if self.bonus_score and now - self.bonus_score_timer > 10000:
+            self.bonus_gun_timer = now
+            self.bonus_score = False
+
