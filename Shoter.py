@@ -1,6 +1,7 @@
 import time
 import random
 import pygame
+from shield import Shield
 from explosion import Explosion
 from meteor import Meteor
 from ship import Ship
@@ -45,6 +46,7 @@ bonus_image_dict['star'] = pygame.image.load('star_gold.png').convert()
 ship = Ship()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(ship)
+score = 0
 bullets = pygame.sprite.Group()
 bonuses = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
@@ -70,6 +72,9 @@ def AutoFire(boo=True):
             bullets.add(bullet1)
             all_sprites.add(bullet1)
             all_sprites.draw(window)
+def AutoScore(boo=True):
+        global score
+        score += 100
 for i in range(20):
     create_meteor(images)
 tiny_score = 5
@@ -84,13 +89,13 @@ def draw_xp_bar():
     fill_rect = pygame.Rect(SCREEN_WIDTH - XP_BAR_WIDTH - 10, 10, fill, 15)
     pygame.draw.rect(window, WHITE2, fill_rect)
     pygame.draw.rect(window, WHITE, outline_rect, 2)
-score = 0
 text = pygame.font.Font('DS-DIGIT.TTF', 32)
 pygame.display.set_caption('PYGAME')
 pygame.display.set_icon(pygame.image.load('logo.png'))
 clock = pygame.time.Clock()
 lives = 5
 music.play()
+shield = None
 while True:
     text_score = str(score)
     text_score_render = text.render('SCORE:' + text_score, True, YELLOW)
@@ -149,7 +154,7 @@ while True:
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
-        if random.random() > 0.9:
+        if random.random() > 0.6:
             bonus = Bonus(bonus_image_dict, hit.rect.center)
             bonuses.add(bonus)
             all_sprites.add(bonus)
@@ -188,7 +193,8 @@ while True:
             ship.bonus_gun = True
             ship.bonus_gun_timer = pygame.time.get_ticks()
         if hit.type == 'shield':
-            pass
+            shield = Shield(ship.rect.center)
+            shield.hide = False
         if hit.type == 'star':
             ship.bonus_score = True
             tiny_score *= 3
@@ -204,12 +210,20 @@ while True:
     # window.fill(BLACK)
     window.blit(bg, (0, 0))
     key = pygame.key.get_pressed()
-    if key[pygame.K_SPACE]:
+    if key[pygame.K_RSHIFT]:
         AutoFire(True)
-    if key[pygame.K_SPACE]:
+    if key[pygame.K_RSHIFT]:
         AutoFire(False)
+    if key[pygame.K_1]:
+        AutoScore(True)
+    if key[pygame.K_1]:
+        AutoScore(False)
     all_sprites.draw(window)
     all_sprites.update()
+    if shield != None:
+        shield.update(ship.rect.center)
+        window.blit(shield.image, shield.rect)
+
     meteors.update()
     window.blit(text_score_render, (5, 5))
     draw_xp_bar()
