@@ -12,6 +12,7 @@ import sys
 pygame.init()
 window = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 bg = pygame.image.load('purple.png').convert()
+bg_rect = bg.get_rect()
 file = ['meteorGrey_big1.png', 'meteorGrey_big2.png', 'meteorGrey_med1.png', 'meteorGrey_med2.png',
         'meteorGrey_small1.png', 'meteorGrey_small2.png', 'meteorGrey_tiny1.png', 'meteorGrey_tiny2.png',
         'meteorGrey_big3.png', 'meteorGrey_big4.png']
@@ -72,15 +73,23 @@ def AutoFire(boo=True):
             bullets.add(bullet1)
             all_sprites.add(bullet1)
             all_sprites.draw(window)
+
+
 def AutoScore(boo=True):
         global score
-        score += 100
+        score += 10000
+
+
 for i in range(20):
     create_meteor(images)
+
+
 tiny_score = 5
 small_score = 3
 medium_score = 2
 large_score = 1
+
+
 def draw_xp_bar():
     if ship.xp < 0:
         ship.xp = 0
@@ -89,13 +98,58 @@ def draw_xp_bar():
     fill_rect = pygame.Rect(SCREEN_WIDTH - XP_BAR_WIDTH - 10, 10, fill, 15)
     pygame.draw.rect(window, WHITE2, fill_rect)
     pygame.draw.rect(window, WHITE, outline_rect, 2)
+
+
+def draw_text(surf, text, size, x, y):
+    font = pygame.font.Font('DS-DIGIT.TTF', size)
+    text_surf = font.render(text, True, YELLOW)
+    text_rect = text_surf.get_rect()
+    text_rect.centerx = x
+    text_rect.top = y
+    surf.blit(text_surf, text_rect)
+
+
+def intro():
+    window.blit(bg, bg_rect)
+    draw_text(window, 'Space Shooter', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 5)
+    draw_text(window, 'press "a", "d"', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)
+    draw_text(window, 'to move your', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+    draw_text(window, 'Space Ship', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 1.5)
+    pygame.display.update()
+    wait = True
+    while wait:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                wait = False
+
+def outro():
+    window.blit(bg, bg_rect)
+    draw_text(window, 'GAME OVER', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 5)
+    draw_text(window, 'PRESS KEY TO ESCAPE', 48, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)
+    pygame.display.update()
+    wait = True
+    while wait:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                wait = False
+
 text = pygame.font.Font('DS-DIGIT.TTF', 32)
 pygame.display.set_caption('PYGAME')
 pygame.display.set_icon(pygame.image.load('logo.png'))
 clock = pygame.time.Clock()
 lives = 5
 music.play()
-shield = None
+# shield = None
+shield = Shield((-100, -100))
+intro()
 while True:
     text_score = str(score)
     text_score_render = text.render('SCORE:' + text_score, True, YELLOW)
@@ -147,14 +201,18 @@ while True:
             explosion = Explosion(explosion_image_dict, hit.rect.center, 'large')
             all_sprites.add(explosion)
         if ship.xp <= 0:
+            outro()
             pygame.quit()
             sys.exit()
+        create_meteor(images)
+    shield_hit_meteors = pygame.sprite.spritecollide(shield, meteors, True, pygame.sprite.collide_circle)
+    for hit in shield_hit_meteors:
         create_meteor(images)
     bullets_hit_meteors = pygame.sprite.groupcollide(meteors, bullets, True, True,
                                                      pygame.sprite.collide_circle)
     for hit in bullets_hit_meteors:
         create_meteor(images)
-        if random.random() > 0.6:
+        if random.random() > 0.8:
             bonus = Bonus(bonus_image_dict, hit.rect.center)
             bonuses.add(bonus)
             all_sprites.add(bonus)
